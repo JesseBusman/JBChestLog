@@ -95,11 +95,8 @@ class ContainerDiffLogFile
         {
             for (int i=0; i<filesThatShouldBeFixed.size(); i++)
             {
-                if (filesThatShouldBeFixed.get(i).tryFixFile())
-                {
-                    filesThatShouldBeFixed.remove(i);
-                    i--;
-                }
+                final ContainerDiffLogFile file = filesThatShouldBeFixed.get(i);
+                file.tryFixFile();
             }
         }
     }
@@ -109,6 +106,10 @@ class ContainerDiffLogFile
         if (!this.fileCorruptedShouldBeFixed)
         {
             JBChestLog.errorLog("fixFile() called on "+cdl.x+" "+cdl.y+" "+cdl.z+" but fileCorruptedShouldBeFixed == false");
+            synchronized (filesThatShouldBeFixed)
+            {
+                filesThatShouldBeFixed.remove(this);
+            }
             return true;
         }
 
