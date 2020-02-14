@@ -1,7 +1,6 @@
 # JBChestLog
 An easy-to-use Bukkit plugin for Minecraft servers. Tap a chest with a stick to view its item history.
 
-
 # Permissions
 | Permission | Meaning |
 |---|---|
@@ -10,3 +9,7 @@ An easy-to-use Bukkit plugin for Minecraft servers. Tap a chest with a stick to 
 | JBChestLog.clear.own | Clear the history of any container using /jbcl clear |
 | JBChestLog.clear.any | Clear the history of any container using /jbcl clear | 
 | JBChestLog.clear.all | Clear the history of all containers on the server using /jbcl clear all | 
+
+# Nota bene
+This plugin has no rollback functionality.
+I use it for my whitelisted vanilla survival server with mostly-trusted people, but I'd like to be able to detect theft and find thieves.
