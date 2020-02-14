@@ -626,7 +626,13 @@ class ContainerDiffLogFile
                     }
 
                     final FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
-                    final FileLock fileLock = Utils.lockFile(fc);
+                    final FileLock fileLock = Utils.tryLockFile(fc);
+
+                    if (fileLock == null)
+                    {
+                        fc.close();
+                        return false;
+                    }
 
                     final long amountOfDiffsInFile = Utils.readLong(fc);
                     
