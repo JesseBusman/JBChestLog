@@ -118,16 +118,21 @@ class ContainerDifferenceCheck
 		}
 	}
 
-	void process()
+	boolean process()
 	{
+		if (processed) return true;
+
+		final ContainerDiffLog cdl = ContainerDiffLog.get(containerBlock);
+		final ContainerDiffLog oppositeCdl = (applyOppositeDifferenceToThisContainer == null) ? null : ContainerDiffLog.get(applyOppositeDifferenceToThisContainer);
+
+		processed = true;
+		
 		try
 		{
-			if (processed) return;
-			processed = true;
-			
 			final ItemStack c = inventory.getItem(inventorySlot);
 			final ItemStack contentsAfterChange = (c == null || c.getAmount() == 0) ? null : new ItemStack(c);
 	
+			/*
 			if (this.differenceShouldEqualThis != null)
 			{
 				if ((contentsAfterChange  == null || contentsAfterChange .getAmount() == 0 || contentsBeforeChange == null || contentsBeforeChange.getAmount() == 0 || contentsAfterChange.isSimilar(contentsBeforeChange)) &&
@@ -150,29 +155,30 @@ class ContainerDifferenceCheck
 					JBChestLog.debugLog("contentsBeforeChange="+contentsBeforeChange+" contentsAfterChange="+contentsAfterChange+" differenceShouldEqualThis="+differenceShouldEqualThis);
 				}
 			}
+			*/
 
 			if (contentsBeforeChange != null && contentsBeforeChange.getAmount() != 0)
 			{
-				JBChestLog.debugLog(Utils.actorToString(actor) + " took " + contentsBeforeChange.getAmount() + " " + contentsBeforeChange.getType().name() + " fron container at " + containerBlock.getX() + "," + containerBlock.getY() + "," + containerBlock.getZ());
-				ContainerDiffLog.get(containerBlock).newDiff(actor, actor2, contentsBeforeChange, ContainerDiffType.ITEM_REMOVED);
+				//JBChestLog.debugLog(Utils.actorToString(actor) + " took " + contentsBeforeChange.getAmount() + " " + contentsBeforeChange.getType().name() + " from container at " + containerBlock.getX() + "," + containerBlock.getY() + "," + containerBlock.getZ());
+				cdl.newDiff(actor, actor2, contentsBeforeChange, ContainerDiffType.ITEM_REMOVED);
 			}
 			if (contentsAfterChange != null && contentsAfterChange.getAmount() != 0)
 			{
-				JBChestLog.debugLog(Utils.actorToString(actor) + " placed " + contentsAfterChange.getAmount() + " " + contentsAfterChange.getType().name() + " into container at " + containerBlock.getX() + "," + containerBlock.getY() + "," + containerBlock.getZ());
-				ContainerDiffLog.get(containerBlock).newDiff(actor, actor2, contentsAfterChange, ContainerDiffType.ITEM_ADDED);
+				//JBChestLog.debugLog(Utils.actorToString(actor) + " placed " + contentsAfterChange.getAmount() + " " + contentsAfterChange.getType().name() + " into container at " + containerBlock.getX() + "," + containerBlock.getY() + "," + containerBlock.getZ());
+				cdl.newDiff(actor, actor2, contentsAfterChange, ContainerDiffType.ITEM_ADDED);
 			}
 
 			if (applyOppositeDifferenceToThisContainer != null)
 			{
 				if (contentsBeforeChange != null && contentsBeforeChange.getAmount() != 0)
 				{
-					JBChestLog.debugLog("According to opposite difference applier: "+Utils.actorToString(applyOppositeDifferenceToThisContainer_actor) + " placed " + contentsBeforeChange.getAmount() + " " + contentsBeforeChange.getType().name() + " fron container at " + applyOppositeDifferenceToThisContainer.getX() + "," + applyOppositeDifferenceToThisContainer.getY() + "," + applyOppositeDifferenceToThisContainer.getZ());
-					ContainerDiffLog.get(applyOppositeDifferenceToThisContainer).newDiff(applyOppositeDifferenceToThisContainer_actor, applyOppositeDifferenceToThisContainer_actor2, contentsBeforeChange, ContainerDiffType.ITEM_ADDED);
+					//JBChestLog.debugLog("According to opposite difference applier: "+Utils.actorToString(applyOppositeDifferenceToThisContainer_actor) + " placed " + contentsBeforeChange.getAmount() + " " + contentsBeforeChange.getType().name() + " fron container at " + applyOppositeDifferenceToThisContainer.getX() + "," + applyOppositeDifferenceToThisContainer.getY() + "," + applyOppositeDifferenceToThisContainer.getZ());
+					oppositeCdl.newDiff(applyOppositeDifferenceToThisContainer_actor, applyOppositeDifferenceToThisContainer_actor2, contentsBeforeChange, ContainerDiffType.ITEM_ADDED);
 				}
 				if (contentsAfterChange != null && contentsAfterChange.getAmount() != 0)
 				{
-					JBChestLog.debugLog("According to opposite difference applier: "+Utils.actorToString(applyOppositeDifferenceToThisContainer_actor) + " took " + contentsAfterChange.getAmount() + " " + contentsAfterChange.getType().name() + " into container at " + applyOppositeDifferenceToThisContainer.getX() + "," + applyOppositeDifferenceToThisContainer.getY() + "," + applyOppositeDifferenceToThisContainer.getZ());
-					ContainerDiffLog.get(applyOppositeDifferenceToThisContainer).newDiff(applyOppositeDifferenceToThisContainer_actor, applyOppositeDifferenceToThisContainer_actor2, contentsAfterChange, ContainerDiffType.ITEM_REMOVED);
+					//JBChestLog.debugLog("According to opposite difference applier: "+Utils.actorToString(applyOppositeDifferenceToThisContainer_actor) + " took " + contentsAfterChange.getAmount() + " " + contentsAfterChange.getType().name() + " into container at " + applyOppositeDifferenceToThisContainer.getX() + "," + applyOppositeDifferenceToThisContainer.getY() + "," + applyOppositeDifferenceToThisContainer.getZ());
+					oppositeCdl.newDiff(applyOppositeDifferenceToThisContainer_actor, applyOppositeDifferenceToThisContainer_actor2, contentsAfterChange, ContainerDiffType.ITEM_REMOVED);
 				}
 			}
 		}
@@ -181,5 +187,6 @@ class ContainerDifferenceCheck
 			JBChestLog.errorLog("Failed to process ContainerDifferenceCheck due to exception: "+e.getMessage());
 			e.printStackTrace();
 		}
+		return true;
 	}
 }
