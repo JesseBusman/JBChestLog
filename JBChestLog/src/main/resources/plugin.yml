@@ -1,0 +1,31 @@
+main: com.jesbus.jbchestlog.JBChestLog
+name: JBChestLog
+version: 1.0
+api-version: 1.15
+commands:
+  jbcl:
+    description: JBChestLog help
+    usage: /jbcl
+    permission: JBChestLog.view.own
+    permission-message: You don't have permission to use JBChestLog
+  JBChestLog:
+    description: JBChestLog help
+    usage: /JBChestLog
+    permission: JBChestLog.view.own
+    permission-message: You don't have permission to use JBChestLog
+permissions:
+  JBChestLog.view.own:
+    description: Allows you to view chest logs of containers you placed
+    default: op
+  JBChestLog.view.any:
+    description: Allows you to view chest logs of any container
+    default: op
+  JBChestLog.clear.own:
+    description: Allows you to delete chest logs of containers you placed
+    default: false
+  JBChestLog.clear.any:
+    description: Allows you to delete chest logs of any container
+    default: false
+  JBChestLog.clear.all:
+    description: Allows you to delete chest logs of all containers at once
+    default: false
