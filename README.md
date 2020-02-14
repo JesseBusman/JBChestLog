@@ -15,4 +15,4 @@ An easy-to-use Bukkit plugin for Minecraft servers. Tap a chest with a stick to 
 - This plugin has no rollback function
 - This plugin cannot lock chests
 
-I use it for my whitelisted vanilla survival server with people who I trust will not grief in a major way, but I'd like to be able to detect small theft and expose thieves.
+I use it for my whitelisted survival server with people who I trust will not grief in a major way, but I'd like to be able to detect small theft and expose thieves.
