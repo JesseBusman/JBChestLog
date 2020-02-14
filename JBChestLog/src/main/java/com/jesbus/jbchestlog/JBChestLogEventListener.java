@@ -291,6 +291,7 @@ class JBChestLogEventListener implements Listener
 		if (event.isCancelled()) return;
 		if (event.getClickedInventory() == null) return;
 		if (event.getView().getType() == InventoryType.PLAYER) return;
+		if (event.getView().getType() == InventoryType.CRAFTING) return;
 		if (event.getView().getType() == InventoryType.CREATIVE) return;
 		if (event.getAction() == InventoryAction.NOTHING) return;
 
