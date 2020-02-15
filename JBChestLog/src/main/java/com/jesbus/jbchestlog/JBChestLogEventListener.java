@@ -6,6 +6,7 @@ import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.Hopper;
 import org.bukkit.entity.minecart.HopperMinecart;
+import org.bukkit.entity.minecart.StorageMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -300,8 +301,11 @@ class JBChestLogEventListener implements Listener
 		JBChestLog.debugLog("InventoryClickEvent player="+event.getWhoClicked().getName()+" clickType="+event.getClick().toString()+" action="+event.getAction().toString()+" viewtype="+event.getView().getType().toString());
 
 		final Inventory inv = event.getClickedInventory();
-		
-		if (event.getClick() == ClickType.DOUBLE_CLICK)
+
+		if (inv.getHolder() instanceof StorageMinecart)
+		{
+		}
+		else if (event.getClick() == ClickType.DOUBLE_CLICK)
 		{
 			final Inventory topInv = event.getView().getTopInventory();
 			if (topInv != null &&
