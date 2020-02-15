@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -106,6 +109,7 @@ public class JBChestLog extends JavaPlugin
                 sender.sendMessage("/----------------------------------------------------");
                 sender.sendMessage("| Usage of JBChestLog");
                 sender.sendMessage("| "+ChatColor.LIGHT_PURPLE+"Left click a container with a stick"+ChatColor.WHITE+" to view its item history");
+                sender.sendMessage("| "+ChatColor.LIGHT_PURPLE+"/"+cmd.getName()+" [x] [y] [z]"+ChatColor.WHITE+" to view the item history at given coordinates");
                 sender.sendMessage("| "+ChatColor.LIGHT_PURPLE+"/"+cmd.getName()+" clear"+ChatColor.WHITE+" to clear the item history of a container");
                 sender.sendMessage("| "+ChatColor.LIGHT_PURPLE+"/"+cmd.getName()+" clear all"+ChatColor.WHITE+" to clear the item history of all containers");
                 sender.sendMessage("\\----------------------------------------------------");
@@ -169,6 +173,65 @@ public class JBChestLog extends JavaPlugin
                     {
                         if (playerToClearAllCommandCode.containsKey(sender)) playerToClearAllCommandCode.remove(sender);
                         sender.sendMessage(ChatColor.RED + "You don't have permission to delete all container logs");
+                        return true;
+                    }
+                }
+                else if (args.length == 4 || args.length == 3)
+                {
+                    try
+                    {
+                        World world;
+
+                        if (args.length == 4)
+                        {
+                            world = Bukkit.getWorld(args[0]);
+                            if (world == null && args[0].equalsIgnoreCase("nether")) world = Bukkit.getWorld("world_nether");
+                            if (world == null && args[0].equalsIgnoreCase("end")) world = Bukkit.getWorld("world_the_end");
+                            if (world == null && args[0].equalsIgnoreCase("end")) world = Bukkit.getWorld("world_the_end");
+                            if (world == null && args[0].equalsIgnoreCase("the_end")) world = Bukkit.getWorld("world_the_end");
+                            if (world == null && args[0].equalsIgnoreCase("the_end")) world = Bukkit.getWorld("world_the_end");
+                            if (world == null)
+                            {
+                                sender.sendMessage(ChatColor.RED + "Could not find world " + ChatColor.WHITE + args[0]);
+                                return true;
+                            }
+                        }
+                        else
+                        {
+                            if (sender instanceof Player)
+                            {
+                                world = ((Player)sender).getWorld();
+                            }
+                            else
+                            {
+                                world = Bukkit.getWorld("world");
+                            }
+                        }
+
+                        final int x = Integer.parseInt(args[(args.length == 4) ? 1 : 0]);
+                        final int y = Integer.parseInt(args[(args.length == 4) ? 2 : 1]);
+                        final int z = Integer.parseInt(args[(args.length == 4) ? 3 : 2]);
+
+                        final Block block = world.getBlockAt(x, y, z);
+
+                        if (block != null && block.getState() instanceof Container)
+                        {
+                            ContainerDiffLogPrinter.reportTo(ContainerDiffLog.get((Container)block.getState()), sender);
+                            return true;
+                        }
+                        else
+                        {
+                            sender.sendMessage("/---------------------------------------------------");
+                            sender.sendMessage("| History of container at "+x+","+y+","+z);
+                            sender.sendMessage("| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+                            sender.sendMessage("| No history found :(");
+                            sender.sendMessage("\\---------------------------------------------------");
+                            return true;
+                        }
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        sender.sendMessage(ChatColor.RED + "Invalid usage of command "+ChatColor.DARK_PURPLE+"/jbcl <world> [x] [y] [z]");
                         return true;
                     }
                 }

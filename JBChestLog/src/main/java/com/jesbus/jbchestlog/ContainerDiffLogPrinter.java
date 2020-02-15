@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -16,26 +16,26 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 class ContainerDiffLogPrinter
 {
-    private static Map<Player, Pair<Long, ContainerDiffLog, Integer>> playerToLastClickedLog = new HashMap<>();
+    private static Map<CommandSender, Pair<Long, ContainerDiffLog, Integer>> playerToLastRequestedLog = new HashMap<>();
     
-    public static void reportTo(final ContainerDiffLog cdl, final Player player)
+    public static void reportTo(final ContainerDiffLog cdl, final CommandSender player)
     {
         int theStart;
         int theAmount;
         {
             final long now = new Date().getTime();
-            Pair<Long, ContainerDiffLog, Integer> plc = playerToLastClickedLog.get(player);
+            Pair<Long, ContainerDiffLog, Integer> plc = playerToLastRequestedLog.get(player);
             if (plc == null || now - plc.first >= Constants.MAX_MS_BETWEEN_CLICKS_TO_SHOW_NEXT_LOG_PAGE)
             {
                 theStart = 0;
                 theAmount = 8;
-                playerToLastClickedLog.put(player, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, 0));
+                playerToLastRequestedLog.put(player, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, 0));
             }
             else
             {
                 theStart = 8 + plc.third * 9;
                 theAmount = 9;
-                playerToLastClickedLog.put(player, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, plc.third + 1));
+                playerToLastRequestedLog.put(player, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, plc.third + 1));
             }
 
         }
@@ -70,7 +70,7 @@ class ContainerDiffLogPrinter
                 {
                     player.sendMessage("| No history found :(");
                     player.sendMessage("\\---------------------------------------------------");
-                    playerToLastClickedLog.remove(player);
+                    playerToLastRequestedLog.remove(player);
                 }
                 else
                 {
@@ -234,7 +234,7 @@ class ContainerDiffLogPrinter
                     if (lastDiffPrinted != null && lastDiffPrinted.diffIndex == 0)
                     {
                         player.sendMessage("\\---------------------------------------------------");
-                        playerToLastClickedLog.remove(player);
+                        playerToLastRequestedLog.remove(player);
                     }
                     else
                     {
