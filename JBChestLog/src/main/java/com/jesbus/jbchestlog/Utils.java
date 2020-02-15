@@ -189,7 +189,7 @@ public class Utils
     {
         try
         {
-            final FileLock fl = fc.lock();
+            final FileLock fl = fc.tryLock();
             return fl;
         }
         catch (IOException e)
