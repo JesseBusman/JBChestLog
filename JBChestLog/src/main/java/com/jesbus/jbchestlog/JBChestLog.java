@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -190,6 +191,16 @@ public class JBChestLog extends JavaPlugin
                             if (world == null && args[0].equalsIgnoreCase("end")) world = Bukkit.getWorld("world_the_end");
                             if (world == null && args[0].equalsIgnoreCase("the_end")) world = Bukkit.getWorld("world_the_end");
                             if (world == null && args[0].equalsIgnoreCase("the_end")) world = Bukkit.getWorld("world_the_end");
+                            if (world == null)
+                            {
+                                try
+                                {
+                                    world = Bukkit.getWorld(UUID.fromString(args[0]));
+                                }
+                                catch (Exception e)
+                                {
+                                }
+                            }
                             if (world == null)
                             {
                                 sender.sendMessage(ChatColor.RED + "Could not find world " + ChatColor.WHITE + args[0]);
