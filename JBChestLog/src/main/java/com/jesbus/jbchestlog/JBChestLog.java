@@ -46,26 +46,68 @@ public class JBChestLog extends JavaPlugin
         ContainerDiffLog.pluginStarting();
         listener = new JBChestLogEventListener();
         Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
+            private boolean running = false;
             @Override
             public void run()
             {
-                ContainerDifferenceCheck.processAll();
-                NewDiffTodo.tryProcessAll();
+                if (running) return;
+                running = true;
+
+                new Thread(new Runnable(){@Override public void run(){
+                    try
+                    {
+                        ContainerDifferenceCheck.processAll();
+                        NewDiffTodo.tryProcessAll();
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    running = false;
+                }}).start();
             }
         }, 1, 1);
         Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
+            private boolean running = false;
             @Override
             public void run()
             {
-                ContainerDiffLogFile.tryFixAll();
-                ContainerDiffLog.trySaveAll();
+                if (running) return;
+                running = true;
+
+                new Thread(new Runnable(){@Override public void run(){
+                    try
+                    {
+                        ContainerDiffLogFile.tryFixAll();
+                        ContainerDiffLog.trySaveAll();
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    running = false;
+                }}).start();
             }
         }, 20 * Constants.SECONDS_BETWEEN_SAVING_ALL_CHANGES_TO_DISK, 20 * Constants.SECONDS_BETWEEN_SAVING_ALL_CHANGES_TO_DISK);
         Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
+            private boolean running = false;
             @Override
             public void run()
             {
-                ContainerDiffLog.saveAllRAM();
+                if (running) return;
+                running = true;
+
+                new Thread(new Runnable(){@Override public void run(){
+                    try
+                    {
+                        ContainerDiffLog.saveAllRAM();
+                    }
+                    catch (Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                    running = false;
+                }}).start();
             }
         }, 20 * Constants.SECONDS_BEFORE_CONTAINER_EVICTED_FROM_CACHE, 20 * Constants.SECONDS_BEFORE_CONTAINER_EVICTED_FROM_CACHE);
 
