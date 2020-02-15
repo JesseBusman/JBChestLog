@@ -352,7 +352,6 @@ class ContainerDiffLogFile
                     return false;
                 }
                 final long currentDiffIndex = Utils.readLong(fc);
-                final long currentDiffFilePosition = fc.position() - 16;
 
                 if (currentDiffIndex == diffIndex)
                 {
