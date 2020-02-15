@@ -308,19 +308,19 @@ class JBChestLogEventListener implements Listener
 				(topInv.getHolder() instanceof DoubleChest ||
 				 topInv.getHolder() instanceof Container))
 			{
-				ItemStack[] clickedItemTypes = new ItemStack[]{inv.getItem(event.getSlot()), event.getCursor(), event.getCurrentItem()};
+				ItemStack[] clickedItemTypes = new ItemStack[]{event.getClickedInventory().getItem(event.getSlot()), event.getCursor(), event.getCurrentItem()};
 
 				for (ItemStack clickedItemType : clickedItemTypes)
 				{
 					if (clickedItemType == null) continue;
 					if (clickedItemType.getAmount() == 0) continue;
 
-					for (int i=0; i<inv.getSize(); i++)
+					for (int i=0; i<topInv.getSize(); i++)
 					{
-						final ItemStack currentItem = inv.getItem(i);
+						final ItemStack currentItem = topInv.getItem(i);
 						if (currentItem != null && currentItem.isSimilar(clickedItemType))
 						{							
-							new ContainerDifferenceCheck(inv, event.getSlot(), event.getWhoClicked());
+							new ContainerDifferenceCheck(topInv, i, event.getWhoClicked());
 						}
 					}
 				}
@@ -352,8 +352,9 @@ class JBChestLogEventListener implements Listener
 			}
 			else if (topInv.getHolder() instanceof HumanEntity &&
 					 event.getView().getBottomInventory() != null &&
-					 event.getView().getBottomInventory() instanceof HumanEntity)
+					 event.getView().getBottomInventory().getHolder() instanceof HumanEntity)
 			{
+				JBChestLog.logger.info("double clicked, both top inv and bottom inv are HumanEntity. viewType="+event.getView().getType());
 			}
 			else
 			{
