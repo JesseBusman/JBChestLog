@@ -187,11 +187,9 @@ public class Utils
 
     static FileLock tryLockFile(FileChannel fc)
     {
-        JBChestLog.debugLog("Trying to lock file "+fc.toString());
         try
         {
             final FileLock fl = fc.lock();
-            JBChestLog.debugLog("Locked file "+fc.toString());
             return fl;
         }
         catch (IOException e)
@@ -201,14 +199,12 @@ public class Utils
     }
     static FileLock lockFile(FileChannel fc)
     {
-        JBChestLog.debugLog("Waiting to lock file "+fc.toString());
         int i = 0;
         while (true)
         {
             try
             {
                 final FileLock fl = fc.lock();
-                JBChestLog.debugLog("Locked file "+fc.toString());
                 return fl;
             }
             catch (Exception e)

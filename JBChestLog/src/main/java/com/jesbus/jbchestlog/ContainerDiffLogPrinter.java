@@ -44,8 +44,6 @@ class ContainerDiffLogPrinter
         final int amount = theAmount;
 
         new Thread(new Runnable(){public void run(){
-
-
             if (start == 0)
             {
                 player.sendMessage("/---------------------------------------------------");
@@ -55,8 +53,6 @@ class ContainerDiffLogPrinter
 
             synchronized (cdl.diffs)
             {
-                JBChestLog.debugLog("In reportTo, we have "+cdl.diffs.size()+" diffs (first="+(cdl.diffs.size() != 0 ? cdl.diffs.get(0).diffIndex : "null")+")");
-
                 try
                 {
                     cdl.cdl_file.waitLoad(Math.max(16, start + amount));

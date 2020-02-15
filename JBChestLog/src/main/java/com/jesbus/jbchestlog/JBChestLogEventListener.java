@@ -308,8 +308,6 @@ class JBChestLogEventListener implements Listener
 				(topInv.getHolder() instanceof DoubleChest ||
 				 topInv.getHolder() instanceof Container))
 			{
-				JBChestLog.debugLog("Double clicked!");
-
 				ItemStack[] clickedItemTypes = new ItemStack[]{inv.getItem(event.getSlot()), event.getCursor(), event.getCurrentItem()};
 
 				for (ItemStack clickedItemType : clickedItemTypes)
@@ -317,15 +315,11 @@ class JBChestLogEventListener implements Listener
 					if (clickedItemType == null) continue;
 					if (clickedItemType.getAmount() == 0) continue;
 
-					JBChestLog.debugLog("clickedItemType="+clickedItemType.getAmount()+"*"+clickedItemType.getType().name());
-
 					for (int i=0; i<inv.getSize(); i++)
 					{
 						final ItemStack currentItem = inv.getItem(i);
 						if (currentItem != null && currentItem.isSimilar(clickedItemType))
-						{
-							JBChestLog.debugLog("slot "+i+" will be checked for items of that type");
-							
+						{							
 							new ContainerDifferenceCheck(inv, event.getSlot(), event.getWhoClicked());
 						}
 					}
@@ -338,15 +332,11 @@ class JBChestLogEventListener implements Listener
 						if (clickedItemType == null) continue;
 						if (clickedItemType.getAmount() == 0) continue;
 
-						JBChestLog.debugLog("clickedItemType="+clickedItemType.getAmount()+"*"+clickedItemType.getType().name());
-
 						for (int i=0; i<topInv.getSize(); i++)
 						{
 							final ItemStack currentItem = topInv.getItem(i);
 							if (currentItem != null && currentItem.isSimilar(clickedItemType))
-							{
-								JBChestLog.debugLog("slot "+i+" will be checked for items of that type");
-								
+							{								
 								new ContainerDifferenceCheck(topInv, event.getSlot(), event.getWhoClicked());
 							}
 						}
@@ -467,7 +457,6 @@ class JBChestLogEventListener implements Listener
 		}
 		else if (inv.getHolder() == null)
 		{
-			JBChestLog.debugLog("WTF: Clicked inventory holder is null");
 		}
 		else
 		{

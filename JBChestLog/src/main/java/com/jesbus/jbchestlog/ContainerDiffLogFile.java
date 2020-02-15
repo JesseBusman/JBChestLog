@@ -62,8 +62,6 @@ class ContainerDiffLogFile
                     this.totalDiffsSavedToFile = 0;
                     this.totalDiffsSavedCorrectlyToFile = 0;
 
-                    JBChestLog.debugLog("createFileIfNotExists() is locking the file");
-
                     @SuppressWarnings("resource")
                     final FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
                     final FileLock fileLock = Utils.lockFile(fc);
@@ -73,8 +71,6 @@ class ContainerDiffLogFile
 
                     fileLock.release();
                     fc.close();
-
-                    JBChestLog.debugLog("createFileIfNotExists() has released the file");
                 }
             }
         }
@@ -254,7 +250,6 @@ class ContainerDiffLogFile
                     if (Utils.readLong(fc) == Constants.MAGIC_DELIMITER)
                     {
                         fc.position(fc.position() - 8);
-                        JBChestLog.debugLog("seekToNextDiff(): done");
                         return true;
                     }
                 }
@@ -339,7 +334,6 @@ class ContainerDiffLogFile
             {
                 timesJumpedBack++;
                 final long currentPosition = fc.position();
-                JBChestLog.debugLog("currentPosition="+currentPosition+" timesJumpedBack="+timesJumpedBack);
                 final long skipBack = timesJumpedBack * totalFileLength / amountDiffsCurrentlyStored;
                 fc.position(Math.max(0, currentPosition - skipBack));
             }
@@ -360,8 +354,6 @@ class ContainerDiffLogFile
                 final long currentDiffIndex = Utils.readLong(fc);
                 final long currentDiffFilePosition = fc.position() - 16;
 
-                JBChestLog.debugLog("currentDiffIndex="+currentDiffIndex+" currentDiffFilePosition="+currentDiffFilePosition+" timesJumpedBack="+timesJumpedBack);
-
                 if (currentDiffIndex == diffIndex)
                 {
                     fc.position(fc.position() - 16);
@@ -375,8 +367,6 @@ class ContainerDiffLogFile
                 }
                 else if (currentDiffIndex < diffIndex)
                 {
-                    JBChestLog.debugLog("currentDiffIndex="+currentDiffIndex+" < diffIndex="+diffIndex+" currentDiffFilePosition="+currentDiffFilePosition+" timesJumpedBack="+timesJumpedBack);
-
                     if (!seekToNextDiff(fc))
                     {
                         this.markThisFileAsCorrupted();
@@ -425,8 +415,6 @@ class ContainerDiffLogFile
             }
 
             final long currentDiffIndex = Utils.readLong(fc);
-
-            JBChestLog.debugLog("currentDiffIndex="+currentDiffIndex);
 
             if (currentDiffIndex == diffIndex)
             {
@@ -518,16 +506,13 @@ class ContainerDiffLogFile
                     }
                     
                     cdl.fixIndexes(0);
-                    
-                    JBChestLog.debugLog("trySave() is trying to lock the file");
-                    
+                                        
                     final FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
                     final FileLock fileLock = Utils.tryLockFile(fc);
                     
                     if (fileLock == null)
                     {
                         fc.close();
-                        JBChestLog.debugLog("trySave(): failed, could not acquire file lock");
                         return false;
                     }
                     
@@ -645,7 +630,6 @@ class ContainerDiffLogFile
                     }
                     else if (cdl.totalDiffs == -1 || this.totalDiffsSavedCorrectlyToFile == -1 || this.totalDiffsSavedToFile == -1)
                     {
-                        JBChestLog.debugLog("tryLoad() is releasing the file");
                         JBChestLog.errorLog("This should never happen :( totalDiffs="+cdl.totalDiffs+" totalDiffsSavedCorrectlyToFile="+this.totalDiffsSavedCorrectlyToFile+" totalDiffsSavedToFile"+this.totalDiffsSavedToFile);
 
                         fileLock.release();

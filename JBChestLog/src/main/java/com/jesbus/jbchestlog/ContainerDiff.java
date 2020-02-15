@@ -37,11 +37,9 @@ class ContainerDiff
 
 	ContainerDiff(final FileChannel fc) throws IOException
 	{
-		JBChestLog.debugLog("Reading ContainerDiff starting at file position "+fc.position());
-
 		// read:    long MAGIC_DELIMITER;
 		final long magicDelimiter = Utils.readLong(fc);
-		if (magicDelimiter != Constants.MAGIC_DELIMITER) throw new IOException("Chest log file is corrupted. Excepted magic delimiter "+Long.toHexString(Constants.MAGIC_DELIMITER)+" but got "+Long.toHexString(magicDelimiter)+"!");
+		if (magicDelimiter != Constants.MAGIC_DELIMITER) throw new IOException("Chest log file is corrupted at pos "+(fc.position()-8)+". Excepted magic delimiter "+Long.toHexString(Constants.MAGIC_DELIMITER)+" but got "+Long.toHexString(magicDelimiter)+"!");
 
 		// read:    long diffIndex;
 		this.diffIndex = Utils.readLong(fc);
@@ -82,14 +80,10 @@ class ContainerDiff
 		}
 		if (obj instanceof ItemStack) this.itemType = (ItemStack)obj;
 		else throw new IOException("Deserialized object is not an ItemStack, it's a: "+obj.getClass().getName());
-
-		JBChestLog.debugLog("ContainerDiff(is): diffIndex="+diffIndex+" amount="+amount+" type="+itemType.getType().name());
 	}
 	
 	void serializeAndWrite(final FileChannel fc) throws IOException
 	{
-		JBChestLog.debugLog("Writing ContainerDiff starting at file position "+fc.position());
-
 		Utils.writeLong(fc, Constants.MAGIC_DELIMITER);
 		Utils.writeLong(fc, diffIndex);
 		Utils.writeLong(fc, startTimestamp);
