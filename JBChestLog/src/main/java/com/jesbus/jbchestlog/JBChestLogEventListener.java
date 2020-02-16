@@ -294,6 +294,10 @@ class JBChestLogEventListener implements Listener
 		if (event.getView().getType() == InventoryType.PLAYER) return;
 		if (event.getView().getType() == InventoryType.CRAFTING) return;
 		if (event.getView().getType() == InventoryType.CREATIVE) return;
+		if (event.getView().getType() == InventoryType.WORKBENCH) return;
+		if (event.getView().getType() == InventoryType.ANVIL) return;
+		if (event.getView().getType() == InventoryType.ENCHANTING) return;
+		if (event.getView().getType() == InventoryType.ENDER_CHEST) return;
 		if (event.getAction() == InventoryAction.NOTHING) return;
 
 		ContainerDifferenceCheck.processAll();
