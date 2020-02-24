@@ -23,7 +23,12 @@ import org.bukkit.event.HandlerList;
 
 public class JBChestLog extends JavaPlugin
 {
-    JBChestLogEventListener listener;
+    static final HashMap<UUID, UUID> minecart_to_placer = new HashMap<>();
+
+    private EventListenerMiscellaneous miscellaneousListener;
+    private EventListenerPlayerInteract playerInteractListener;
+    private EventListenerInventoryMoveItem inventoryMoveItemListener;
+    private EventListenerInventoryClick inventoryClickListener;
 
     static File dataFolder;
     static Logger logger;
@@ -44,7 +49,6 @@ public class JBChestLog extends JavaPlugin
         try { (dataFolder = getDataFolder()).mkdirs(); } catch (Exception e) { dataFolder = null; errorLog("Could not create data folder; JBChestLog plugin disabled. Error: "+e.getMessage()); return; }
         logger = getLogger();
         ContainerDiffLog.pluginStarting();
-        listener = new JBChestLogEventListener();
         Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
             private boolean running = false;
             @Override
@@ -111,7 +115,15 @@ public class JBChestLog extends JavaPlugin
             }
         }, 20 * Constants.SECONDS_BEFORE_CONTAINER_EVICTED_FROM_CACHE, 20 * Constants.SECONDS_BEFORE_CONTAINER_EVICTED_FROM_CACHE);
 
-        getServer().getPluginManager().registerEvents(listener, this);
+        miscellaneousListener = new EventListenerMiscellaneous();
+        playerInteractListener = new EventListenerPlayerInteract();
+        inventoryClickListener = new EventListenerInventoryClick();
+        inventoryMoveItemListener = new EventListenerInventoryMoveItem();
+        
+        getServer().getPluginManager().registerEvents(miscellaneousListener, this);
+        getServer().getPluginManager().registerEvents(inventoryClickListener, this);
+        getServer().getPluginManager().registerEvents(inventoryMoveItemListener, this);
+        getServer().getPluginManager().registerEvents(playerInteractListener, this);
 
         logger.info("JBChestLog has started");
     }
@@ -124,13 +136,19 @@ public class JBChestLog extends JavaPlugin
         {
             try { Bukkit.getScheduler().cancelTasks(this); } catch (Exception e) { logger.info("Error during shutdown in cancelTasks(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
             try { ContainerDifferenceCheck.processAll(); } catch (Exception e) { logger.info("Error during shutdown in processTodos(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
-            try { HandlerList.unregisterAll(listener); } catch (Exception e) { logger.info("Error during shutdown in unregisterAll(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
+            try { HandlerList.unregisterAll(inventoryClickListener); } catch (Exception e) { logger.info("Error during shutdown in unregisterAll(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
+            try { HandlerList.unregisterAll(inventoryMoveItemListener); } catch (Exception e) { logger.info("Error during shutdown in unregisterAll(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
+            try { HandlerList.unregisterAll(playerInteractListener); } catch (Exception e) { logger.info("Error during shutdown in unregisterAll(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
+            try { HandlerList.unregisterAll(miscellaneousListener); } catch (Exception e) { logger.info("Error during shutdown in unregisterAll(), please submit bug report: "+e.getMessage()); e.printStackTrace(); }
             try { ContainerDiffLog.pluginShuttingDown(); } catch (Exception e) { logger.info("Error during shutdown in clearCache(), please submit a bug report: "+e.getMessage()); e.printStackTrace(); }
             logger.info("JBChestLog has shut down");
         }
         catch (Exception e)
         {
-            listener = null;
+            inventoryClickListener = null;
+            inventoryMoveItemListener = null;
+            playerInteractListener = null;
+            miscellaneousListener = null;
             logger = null;
             getLogger().log(Level.WARNING, "Error during JBChestLog onDisable(). Please submit a bug report: "+e.getMessage());
             e.printStackTrace();
@@ -269,7 +287,7 @@ public class JBChestLog extends JavaPlugin
 
                         if (block != null && block.getState() instanceof Container)
                         {
-                            ContainerDiffLogPrinter.reportTo(ContainerDiffLog.get((Container)block.getState()), sender);
+                            ContainerDiffLogPrinter.reportToIfAllowed(ContainerDiffLog.get((Container)block.getState()), sender);
                             return true;
                         }
                         else
