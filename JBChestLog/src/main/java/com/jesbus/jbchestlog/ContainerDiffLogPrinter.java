@@ -5,10 +5,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -18,37 +21,76 @@ class ContainerDiffLogPrinter
 {
     private static Map<CommandSender, Pair<Long, ContainerDiffLog, Integer>> playerToLastRequestedLog = new HashMap<>();
     
-    public static void reportTo(final ContainerDiffLog cdl, final CommandSender player)
+    public static void reportToIfAllowed(final ContainerDiffLog cdl, final CommandSender commandSender)
+    {
+        if (commandSender instanceof ConsoleCommandSender)
+        {
+            
+        }
+        else if (commandSender instanceof Player)
+        {
+			if (!commandSender.hasPermission(Constants.PERMISSION_VIEW_ANY))
+			{
+				if (!commandSender.hasPermission(Constants.PERMISSION_VIEW_OWN))
+				{
+                    commandSender.sendMessage(ChatColor.RED + "You don't have permission to view container history.");
+                    return;
+                }
+				else
+				{
+					UUID placer = cdl.tryFindWhoPlacedThisContainer();
+					if (placer == null)
+					{
+						commandSender.sendMessage(ChatColor.RED + "The server can't figure out who placed this container, so unfortunately you're not allowed to view its history.");
+						return;
+					}
+					else if (!placer.equals(((Player)commandSender).getUniqueId()))
+					{
+						commandSender.sendMessage(ChatColor.RED + "You don't have permission to view this container's history because you didn't place it.");
+						return;
+					}
+				}
+			}
+        }
+        else
+        {
+            JBChestLog.logger.info("Unknown commandsender type: "+commandSender.getClass().getName());
+            // TODO
+        }
+
+        reportTo(cdl, commandSender);
+    }
+    private static void reportTo(final ContainerDiffLog cdl, final CommandSender commandSender)
     {
         int theStart;
         int theAmount;
         {
             final long now = new Date().getTime();
-            Pair<Long, ContainerDiffLog, Integer> plc = playerToLastRequestedLog.get(player);
+            Pair<Long, ContainerDiffLog, Integer> plc = playerToLastRequestedLog.get(commandSender);
             if (plc == null || now - plc.first >= Constants.MAX_MS_BETWEEN_CLICKS_TO_SHOW_NEXT_LOG_PAGE)
             {
                 theStart = 0;
                 theAmount = 8;
-                playerToLastRequestedLog.put(player, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, 0));
+                playerToLastRequestedLog.put(commandSender, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, 0));
             }
             else
             {
                 theStart = 8 + plc.third * 9;
                 theAmount = 9;
-                playerToLastRequestedLog.put(player, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, plc.third + 1));
+                playerToLastRequestedLog.put(commandSender, new Pair<Long, ContainerDiffLog, Integer>(now, cdl, plc.third + 1));
             }
 
         }
-
+        
         final int start = theStart;
         final int amount = theAmount;
 
         new Thread(new Runnable(){public void run(){
             if (start == 0)
             {
-                player.sendMessage("/---------------------------------------------------");
-                player.sendMessage("| History of container at "+cdl.x+","+cdl.y+","+cdl.z);
-                player.sendMessage("| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
+                commandSender.sendMessage("/---------------------------------------------------");
+                commandSender.sendMessage("| History of container at "+cdl.x+","+cdl.y+","+cdl.z);
+                commandSender.sendMessage("| - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
             }
 
             synchronized (cdl.diffs)
@@ -59,7 +101,7 @@ class ContainerDiffLogPrinter
                 }
                 catch (IOException e)
                 {
-                    player.sendMessage(ChatColor.RED+"IOException occurred while trying to load the chest log: "+e.getMessage());
+                    commandSender.sendMessage(ChatColor.RED+"IOException occurred while trying to load the chest log: "+e.getMessage());
                     e.printStackTrace();
                     return;
                 }
@@ -68,9 +110,9 @@ class ContainerDiffLogPrinter
 
                 if (cdl.diffs.size() == 0)
                 {
-                    player.sendMessage("| No history found :(");
-                    player.sendMessage("\\---------------------------------------------------");
-                    playerToLastRequestedLog.remove(player);
+                    commandSender.sendMessage("| No history found :(");
+                    commandSender.sendMessage("\\---------------------------------------------------");
+                    playerToLastRequestedLog.remove(commandSender);
                 }
                 else
                 {
@@ -158,11 +200,11 @@ class ContainerDiffLogPrinter
 
                         if (diff.amount == Long.MAX_VALUE)
                         {
-                            player.sendMessage("| ["+dateTimeString+", "+Utils.actorToString(diff.actor, diff.actor2)+"] "+ChatColor.GREEN+" placed "+diff.itemType.getType().name());
+                            commandSender.sendMessage("| ["+dateTimeString+", "+Utils.actorToString(diff.actor, diff.actor2)+"] "+ChatColor.GREEN+" placed "+diff.itemType.getType().name());
                         }
                         else if (diff.amount == Long.MIN_VALUE)
                         {
-                            player.sendMessage("| ["+dateTimeString+", "+Utils.actorToString(diff.actor, diff.actor2)+"] "+ChatColor.RED+" broke "+diff.itemType.getType().name());
+                            commandSender.sendMessage("| ["+dateTimeString+", "+Utils.actorToString(diff.actor, diff.actor2)+"] "+ChatColor.RED+" broke "+diff.itemType.getType().name());
                         }
                         else
                         {
@@ -175,6 +217,10 @@ class ContainerDiffLogPrinter
                             }
                             {
                                 TextComponent itemPart = new TextComponent(Utils.itemTypeToName(diff.itemType));
+                                if (diff.itemType.getItemMeta().hasDisplayName())
+                                {
+                                    itemPart.addExtra(" (\"" + diff.itemType.getItemMeta().getDisplayName() + "\")");
+                                }
                                 if (diff.itemType.getEnchantments().size() >= 1)
                                 {
                                     itemPart.setColor(net.md_5.bungee.api.ChatColor.AQUA);
@@ -204,7 +250,7 @@ class ContainerDiffLogPrinter
                                 msg.addExtra(" ");
                                 msg.addExtra(itemPart);
                             }
-                            player.spigot().sendMessage(msg);
+                            commandSender.spigot().sendMessage(msg);
                         }
                         /*
                         else if (cachedMessageAmountOfParts == 0)
@@ -233,8 +279,8 @@ class ContainerDiffLogPrinter
                     */
                     if (lastDiffPrinted != null && lastDiffPrinted.diffIndex == 0)
                     {
-                        player.sendMessage("\\---------------------------------------------------");
-                        playerToLastRequestedLog.remove(player);
+                        commandSender.sendMessage("\\---------------------------------------------------");
+                        playerToLastRequestedLog.remove(commandSender);
                     }
                     else
                     {
