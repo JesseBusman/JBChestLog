@@ -86,6 +86,6 @@
         </includes>
       </resource>
     </resources>
-    <directory>D:\MinecraftServer_Paper\plugins</directory>
+    <directory>D:\MinecraftServer_Paper\plugins\compileroutput__JBChestLog</directory>
   </build>
 </project>
