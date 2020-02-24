@@ -249,8 +249,22 @@ class ContainerDiffLogFile
                     fc.position(fc.position() - 1);
                     if (Utils.readLong(fc) == Constants.MAGIC_DELIMITER)
                     {
-                        fc.position(fc.position() - 8);
-                        return true;
+                        final long diffIndex = Utils.readLong(fc);
+                        if (diffIndex < 100000)
+                        {
+                            fc.position(fc.position() - 16);
+                            return true;
+                        }
+                        else
+                        {
+                            JBChestLog.errorLog("seekToNextDiff found MAGIC_DELIMITER followed by invalid diffIndex="+diffIndex);
+                            fc.position(fc.position() - 15);
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        fc.position(fc.position() - 7);
                     }
                 }
                 else
@@ -369,7 +383,7 @@ class ContainerDiffLogFile
                     if (!seekToNextDiff(fc))
                     {
                         this.markThisFileAsCorrupted();
-                        JBChestLog.errorLog("Chest log file "+cdl.x+" "+cdl.y+" "+cdl.z+" is corrupted. It claims to have more diffs ("+amountDiffsCurrentlyStored+") than it actually has ("+currentDiffIndex+")!");
+                        JBChestLog.errorLog("Chest log file "+cdl.x+" "+cdl.y+" "+cdl.z+" is corrupted. It claims to have more diffs ("+amountDiffsCurrentlyStored+") than it actually has ("+(currentDiffIndex+1)+")!");
                         return false;
                     }
                     break;
