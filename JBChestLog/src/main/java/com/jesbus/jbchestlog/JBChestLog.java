@@ -18,6 +18,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Container;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 
@@ -207,7 +208,7 @@ public class JBChestLog extends JavaPlugin
             {
                 if (args[0].equalsIgnoreCase("clear") && args[1].equalsIgnoreCase("all"))
                 {
-                    if (sender.hasPermission(Constants.PERMISSION_CLEAR_ALL))
+                    if (sender instanceof ConsoleCommandSender || sender.hasPermission(Constants.PERMISSION_CLEAR_ALL))
                     {
                         if (args.length == 2)
                         {
