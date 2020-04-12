@@ -44,6 +44,7 @@ class EventListenerInventoryClick implements Listener
 		if (type == InventoryType.ENCHANTING) return;
 		if (type == InventoryType.ENDER_CHEST) return;
 		if (type == InventoryType.MERCHANT) return;
+		if (type.toString().equals("STONECUTTER")) return;
 		if (inv.getHolder() instanceof StorageMinecart) return;
 		if (inv.getHolder() instanceof HopperMinecart) return;
 		if (inv.getHolder() instanceof Villager) return;
@@ -157,6 +158,11 @@ class EventListenerInventoryClick implements Listener
 			else if (action == InventoryAction.PICKUP_ONE) { }
 			else if (action == InventoryAction.PICKUP_ALL) { }
 			else if (action == InventoryAction.PLACE_ONE) { }
+			else if (action == InventoryAction.PLACE_SOME) { }
+			else if (action == InventoryAction.DROP_ALL_SLOT) { }
+			else if (action == InventoryAction.DROP_ALL_CURSOR) { }
+			else if (action == InventoryAction.DROP_ONE_SLOT) { }
+			else if (action == InventoryAction.DROP_ONE_CURSOR) { }
 			
 			// ... except for shift+click which can move the clicked item from the player's to the container's inventory
 			else if (event.isShiftClick() && action.equals(InventoryAction.MOVE_TO_OTHER_INVENTORY) && type != InventoryType.PLAYER)
