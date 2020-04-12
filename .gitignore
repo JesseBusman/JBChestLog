@@ -42,15 +42,3 @@ buildNumber.properties
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-JBChestLog/target/classes/com/jesbus/jbchestlog/ContainerDiff.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/ContainerDifferenceCheck.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/ContainerDiffLogFile.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/ContainerDiffLogPrinter.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/ContainerDiffLogPrinter$1.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/JBChestLogEventListener.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/Utils.class
-JBChestLog/target/classes/com/jesbus/jbchestlog/JBChestLogEventListener.class
